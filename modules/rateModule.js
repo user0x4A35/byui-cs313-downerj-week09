@@ -1,5 +1,12 @@
 module.exports = {
+    /**
+     * GET RATE
+     * This is the function portion of the "/getRate" endpoint.
+     * @param req The Express HTTP request object (populated)
+     * @param res The Express HTTP response object (to be populated)
+     */
     getRate: (req, res) => {
+        // enforce needed paramters
         if (!('weight' in req.query && 'type' in req.query)) {
             return respond(res, {
                 status: 400,
@@ -10,6 +17,7 @@ module.exports = {
             });
         }
 
+        // check for and set output type
         let outputType = 'text/html';
         if ('output' in req.query) {
             switch (req.query.output) {
@@ -24,6 +32,7 @@ module.exports = {
                     outputType = 'text/html';
                     break;
 
+                // "output" must be valid or omitted
                 default:
                     return respond(res, {
                         status: 400,
@@ -35,14 +44,18 @@ module.exports = {
             }
         }
 
+        // get values from the URL query
         let weight = Number(req.query.weight);
         let type = req.query.type;
+
+        // get the rate and calculate the price
         let price;
         let rate;
         let typeName;
         try {
             [rate, price, typeName] = calculatePrice(weight, type);
         } catch (err) {
+            // if an invalid weight was given, then indicate such
             return respond(res, {
                 status: 400,
                 headers: {
@@ -52,7 +65,9 @@ module.exports = {
             });
         }
 
+        res.set('Content-Type', outputType);
         switch (outputType) {
+            // render the EJS page
             case 'text/html':
                 res.render('pages/price.ejs', {
                     weight: weight.toFixed(2),
@@ -62,6 +77,7 @@ module.exports = {
                 });
                 break;
             
+            // send a JSON object
             case 'application/json':
                 res.send(JSON.stringify({
                     weight: weight.toFixed(2),
