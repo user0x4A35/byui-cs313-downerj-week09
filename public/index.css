@@ -3,6 +3,11 @@ body {
     font-size: 14px;
 }
 
-table td:first-child {
-    font-weight: bold;
+.u-fill {
+    width: 100%;
+}
+
+.u-note {
+    font-style: italic;
+    font-size: 12px;
 }
