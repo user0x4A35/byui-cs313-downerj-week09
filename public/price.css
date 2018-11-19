@@ -12,3 +12,7 @@ table td:first-child {
     font-style: italic;
     font-size: 12px;
 }
+
+.u-fill {
+    width: 100%;
+}
