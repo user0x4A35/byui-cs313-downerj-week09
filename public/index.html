@@ -7,7 +7,7 @@
     </head>
     <body>
         <h1>Postage Rate Calculator</h1>
-        <form>
+        <form id="frm-main" oninput="onFormChange()">
             <table>
                 <tbody>
                     <tr>
@@ -33,9 +33,10 @@
                     <tr>
                         <td><label for="output">Output Type</label></td>
                         <td>
-                            <select name="output" selected="html" required class="u-fill">
+                            <select name="output" id="sel-output" oninput="onOutputSelectorChange()" selected="html" required class="u-fill">
                                 <option value="html">Separate HTML page</option>
-                                <option value="json">JSON (AJAX request)</option>
+                                <option value="json">JSON Object</option>
+                                <option value="ajax">AJAX Request</option>
                             </select>
                         </td>
                     </tr>
@@ -46,6 +47,10 @@
                     </tr>
                 </tbody>
             </table>
+            <div id="div-ajax">
+                <label>AJAX Reponse:</label><hr />
+                <div id="div-ajax-response"></div>
+            </div>
         </form>
 
         <script type="application/javascript" src="index.js"></script>
