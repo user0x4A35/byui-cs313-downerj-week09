@@ -6,15 +6,16 @@ module.exports = {
                 headers: {
                     'Content-Type': 'text/html',
                 },
-                message: 'Bad request',
+                message: 'Bad request: missing weight and/or type parameter(s)',
             });
         }
 
-        let weight = req.query.weight;
+        let weight = Number(req.query.weight);
         let type = req.query.type;
         let price;
+        let typeName;
         try {
-            price = calculatePrice(weight, type);
+            [price, typeName] = calculatePrice(weight, type);
         } catch (err) {
             return respond(res, {
                 status: 400,
@@ -26,9 +27,9 @@ module.exports = {
         }
 
         res.render('pages/price.ejs', {
-            weight: weight,
-            type: type,
-            price: price,
+            weight: weight.toFixed(2),
+            typeName: typeName,
+            price: price.toFixed(2),
         });
     },
 };
@@ -38,6 +39,13 @@ const typeRateMap = {
     'letter-metered': rateLetterMetered,
     'large-flat': rateLargeFlat,
     'first-class-retail': rateFirstClassRetail,
+};
+
+const typeNameMap = {
+    'letter-stamped': 'Letter (Stamped)',
+    'letter-metered': 'Letter (Metered)',
+    'large-flat': 'Large Envelope (Flat)',
+    'first-class-retail': 'First-Class Package Service—Retail',
 };
 
 function rateLetterStamped(weight) {
@@ -96,7 +104,7 @@ function rateLargeFlat(weight) {
     } else if (weight <= 13.0) {
         return 3.52;
     } else {
-        throw `Invalid weight ${weight}`;
+        throw `Invalid weight "${weight}"`;
     }
 }
 
@@ -116,7 +124,7 @@ function rateFirstClassRetail(weight) {
     } else if (weight <= 13.0) {
         return 5.50;
     } else {
-        throw `Invalid weight ${weight}`;
+        throw `Invalid weight "${weight}"`;
     }
 }
 
@@ -128,12 +136,13 @@ function calculatePrice(weight, type) {
     }
 
     let getRate = typeRateMap[type];
-    return getRate(weight) * weight;
+    let typeName = typeNameMap[type];
+    return [getRate(weight) * weight, typeName];
 }
 
 function respond(res, obj) {
     res.status(obj.status);
-    for (let key of obj.headers) {
+    for (let key in obj.headers) {
         res.set(key, obj.headers[key]);
     }
     res.send(obj.message);
