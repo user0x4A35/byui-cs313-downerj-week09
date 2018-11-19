@@ -10,6 +10,31 @@ module.exports = {
             });
         }
 
+        let outputType = 'text/html';
+        if ('output' in req.query) {
+            switch (req.query.output) {
+                case 'json':
+                    outputType = 'application/json';
+                    break;
+                
+                case 'html':
+                case '':
+                case null:
+                case undefined:
+                    outputType = 'text/html';
+                    break;
+
+                default:
+                    return respond(res, {
+                        status: 400,
+                        headers: {
+                            'Content-Type': 'text/html',
+                        },
+                        message: `Invalid output type "${req.query.output}"`,
+                    });
+            }
+        }
+
         let weight = Number(req.query.weight);
         let type = req.query.type;
         let price;
@@ -26,11 +51,24 @@ module.exports = {
             });
         }
 
-        res.render('pages/price.ejs', {
-            weight: weight.toFixed(2),
-            typeName: typeName,
-            price: price.toFixed(2),
-        });
+        switch (outputType) {
+            case 'text/html':
+                res.render('pages/price.ejs', {
+                    weight: weight.toFixed(2),
+                    typeName: typeName,
+                    price: price.toFixed(2),
+                });
+                break;
+            
+            case 'application/json':
+                res.send(JSON.stringify({
+                    weight: weight.toFixed(2),
+                    type: type,
+                    typeName: typeName,
+                    price: price.toFixed(2),
+                }));
+                break;
+        }
     },
 };
 
