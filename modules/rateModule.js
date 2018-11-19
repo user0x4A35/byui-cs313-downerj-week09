@@ -38,9 +38,10 @@ module.exports = {
         let weight = Number(req.query.weight);
         let type = req.query.type;
         let price;
+        let rate;
         let typeName;
         try {
-            [price, typeName] = calculatePrice(weight, type);
+            [rate, price, typeName] = calculatePrice(weight, type);
         } catch (err) {
             return respond(res, {
                 status: 400,
@@ -56,6 +57,7 @@ module.exports = {
                 res.render('pages/price.ejs', {
                     weight: weight.toFixed(2),
                     typeName: typeName,
+                    rate: rate.toFixed(2),
                     price: price.toFixed(2),
                 });
                 break;
@@ -65,6 +67,7 @@ module.exports = {
                     weight: weight.toFixed(2),
                     type: type,
                     typeName: typeName,
+                    rate: rate.toFixed(2),
                     price: price.toFixed(2),
                 }));
                 break;
@@ -174,8 +177,9 @@ function calculatePrice(weight, type) {
     }
 
     let getRate = typeRateMap[type];
+    let rate = getRate(weight);
     let typeName = typeNameMap[type];
-    return [getRate(weight) * weight, typeName];
+    return [rate, rate * weight, typeName];
 }
 
 function respond(res, obj) {
