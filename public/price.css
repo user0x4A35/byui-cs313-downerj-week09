@@ -6,3 +6,9 @@ body {
 table td:first-child {
     font-weight: bold;
 }
+
+.u-note {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 12px;
+}

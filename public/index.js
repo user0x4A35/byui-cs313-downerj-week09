@@ -3,6 +3,7 @@ function byId(id) {
 }
 
 let divAjax;
+let divAjaxResponse;
 let selOutput;
 let frmMain;
 let btRequest;
@@ -36,6 +37,8 @@ function validateInputs() {
 }
 
 function onOutputSelectorChange() {
+    divAjaxResponse.innerHTML = '';
+
     if (selOutput.value === 'ajax') {
         divAjax.style.display = '';
     } else {
@@ -45,6 +48,7 @@ function onOutputSelectorChange() {
 
 function onWindowLoad() {
     divAjax = byId('div-ajax');
+    divAjaxResponse = byId('div-ajax-response');
     selOutput = byId('sel-output');
     frmMain = byId('frm-main');
     btRequest = byId('bt-request');
@@ -59,7 +63,32 @@ function onFormChange() {
 }
 
 function onRequestClick() {
-    
+    switch (selOutput.value) {
+        case 'html':
+        case 'json':
+            if (validateInputs()) {
+                frmMain.submit();
+            }
+            break;
+        
+        case 'ajax':
+            if (validateInputs()) {
+                let data = new FormData(frmMain);
+                
+                for (let datum of data) {
+                    console.log(datum);
+                }
+
+                ajaxGet('/getRate', data)
+                .then((html) => {
+                    divAjaxResponse.innerHTML = html;
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            }
+            break;
+    }
 }
 
 window.addEventListener('load', onWindowLoad);

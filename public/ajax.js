@@ -54,10 +54,7 @@ function ajaxGet(resource, data) {
         for (let datum of data) {
             let key = encodeURIComponent(datum[0]);
             let value = encodeURIComponent(datum[1]);
-            params += `${key}=${value}`;
-            if (count++ > 0) {
-                params += '&';
-            }
+            params += `${key}=${value}&`;
         }
         url = `${resource}?${params}`;
     } else {

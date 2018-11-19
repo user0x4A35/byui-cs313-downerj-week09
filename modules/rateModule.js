@@ -36,6 +36,7 @@ module.exports = {
                     break;
                 
                 case 'html':
+                case 'ajax':
                 case '':
                 case null:
                 case undefined:
