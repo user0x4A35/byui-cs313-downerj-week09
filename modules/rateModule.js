@@ -1,7 +1,17 @@
+/**
+ * RATE MODULE
+ * This is the module for handling API endpoints related to postage rates.
+ * @author  James D. Downer
+ * @version 1.0
+ * @since   November 18, 2018
+ */
+
 module.exports = {
     /**
      * GET RATE
      * This is the function portion of the "/getRate" endpoint.
+     * If an input is invalid, then a simple reponse is sent back with the matching
+     * error code.
      * @param req The Express HTTP request object (populated)
      * @param res The Express HTTP response object (to be populated)
      */
@@ -53,7 +63,7 @@ module.exports = {
         let rate;
         let typeName;
         try {
-            [rate, price, typeName] = calculatePrice(weight, type);
+            [rate, price, typeName] = calculateData(weight, type);
         } catch (err) {
             // if an invalid weight was given, then indicate such
             return respond(res, {
@@ -91,6 +101,10 @@ module.exports = {
     },
 };
 
+/**
+ * TYPE RATE MAP
+ * A map to match the package type to the rate calculation function.
+ */
 const typeRateMap = {
     'letter-stamped': rateLetterStamped,
     'letter-metered': rateLetterMetered,
@@ -98,6 +112,10 @@ const typeRateMap = {
     'first-class-retail': rateFirstClassRetail,
 };
 
+/**
+ * TYPE NAME MAP
+ * A map to match the package type with a more human-readable type name.
+ */
 const typeNameMap = {
     'letter-stamped': 'Letter (Stamped)',
     'letter-metered': 'Letter (Metered)',
@@ -105,6 +123,14 @@ const typeNameMap = {
     'first-class-retail': 'First-Class Package Service—Retail',
 };
 
+/**
+ * RATE : LETTER (STAMPED)
+ * This calculates the rate of a stamped letter or deferes the calculation to
+ * the "First Class Mail" calculator if the weight is over 3.5 oz.
+ * @param weight The weight of the letter
+ * @returns      The applied rate
+ * @throws       An error if the weight is too much
+ */
 function rateLetterStamped(weight) {
     if (weight <= 1.0) {
         return 0.50;
@@ -119,6 +145,14 @@ function rateLetterStamped(weight) {
     }
 }
 
+/**
+ * RATE : LETTER (METERED)
+ * This calculates the rate of a metered letter or deferes the calculation to
+ * the "First Class Mail" calculator if the weight is over 3.5 oz.
+ * @param weight The weight of the letter
+ * @returns      The applied rate
+ * @throws       An error if the weight is too much
+ */
 function rateLetterMetered(weight) {
     if (weight <= 1.0) {
         return 0.47;
@@ -133,6 +167,12 @@ function rateLetterMetered(weight) {
     }
 }
 
+/**
+ * RATE : LARGE ENVELOPE (FLAT)
+ * @param weight The weight of the envelope
+ * @returns      The applied rate
+ * @throws       An error if the weight is greater than 13.0 oz
+ */
 function rateLargeFlat(weight) {
     if (weight <= 1.0) {
         return 1.00;
@@ -165,6 +205,12 @@ function rateLargeFlat(weight) {
     }
 }
 
+/**
+ * RATE : FIRST-CLASS MAIL (RETAIL)
+ * @param weight The weight of the package
+ * @returns      The applied rate
+ * @throws       An error if the weight is greater than 13.0 oz
+ */
 function rateFirstClassRetail(weight) {
     if (weight <= 4.0) {
         return 3.50;
@@ -185,7 +231,17 @@ function rateFirstClassRetail(weight) {
     }
 }
 
-function calculatePrice(weight, type) {
+/**
+ * CALCULATE DATA
+ * This calculates and returns the rate, price and human-readable type name.
+ * @param weight The package/letter weight
+ * @param type   The package/letter type
+ * @returns      A data array
+ * @throws       An error message if the weight or type is invalid
+ * 
+ * The returned data array includes the rate, price and type name (in that order).
+ */
+function calculateData(weight, type) {
     if (!(type in typeRateMap)) {
         throw `Unknown type "${type}"`;
     } else if (isNaN(weight) || weight <= 0) {
@@ -198,6 +254,17 @@ function calculatePrice(weight, type) {
     return [rate, rate * weight, typeName];
 }
 
+/**
+ * RESPOND
+ * This sends a simple response (typically for errors).
+ * @param res The Express HTTP response object
+ * @param obj A key-value map for the response
+ * 
+ * The key-value map includes:
+ * @var status  The HTTP status code
+ * @var headers A key-value map of HTTP headers
+ * @var message The content message
+ */
 function respond(res, obj) {
     res.status(obj.status);
     for (let key in obj.headers) {
