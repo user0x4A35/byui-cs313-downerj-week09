@@ -7,6 +7,10 @@ let selOutput;
 let frmMain;
 let btRequest;
 
+function ajax() {
+
+}
+
 function validateInputs() {
     const validTypes = [
         'letter-stamped',
@@ -55,7 +59,7 @@ function onFormChange() {
 }
 
 function onRequestClick() {
-
+    
 }
 
 window.addEventListener('load', onWindowLoad);
